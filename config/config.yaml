@@ -1,0 +1,25 @@
+# Runtime parameters — loaded by AgentRegistry, passed as Graph(config=...).
+# Separate from config/agent.yaml (the static manifest).
+# In the standalone deployment the same file is read by _runtime_config()
+# (src/graph/graph.py) and forwarded to the inner domain graph, which injects
+# the retrieval settings into the node constructors.
+
+max_retry: 3
+timeout_s: 30
+
+# RAG retrieval tuning (RetrieveNode / RerankFilterNode). A caller may narrow
+# the retrieval depth per invocation via input_context.top_k (bounded 1..10);
+# the score threshold is operator-only and has no caller override.
+retrieval:
+  top_k: 5
+  score_threshold: 0.75
+  hybrid_search: false
+
+# LLM synthesis settings (GenerateAnswerNode). The current build synthesises
+# answers deterministically from the retrieved passages and reads none of
+# these; they are forwarded to the inner graph so a live-LLM build can consume
+# them without a config-shape change. Temperature 0.0 for a regulated domain.
+llm:
+  system_prompt_template: "prompts/fin_qa.j2"
+  temperature: 0.0
+  max_tokens: 3000
